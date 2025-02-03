@@ -44,29 +44,46 @@
 
     <script>
         function generateRandomNumber() {
+            let now = new Date();
+            let today = now.toDateString();
+            let lastScanDate = localStorage.getItem("lastScanDate");
             let lastScanTime = localStorage.getItem("lastScanTime");
-            let now = new Date().getTime();
             let tenMinutes = 10 * 60 * 1000;
+            
+            let hasWonToday = localStorage.getItem("hasWonToday");
 
-            if (!lastScanTime || now - lastScanTime >= tenMinutes) {
-                let randomNum = Math.floor(Math.random() * 100) + 1;
-                localStorage.setItem("randomNumber", randomNum);
-                localStorage.setItem("lastScanTime", now);
-
-                if (randomNum % 2 === 1) {
-                    document.getElementById("random-number").innerText = "抓到啦！恭喜你！来找我领飘带吧 🎉";
-                } else {
-                    document.getElementById("random-number").innerText = "虽然你抓到我了，但可惜运气不佳没中奖 😢";
-                }
+            // If user has won today, block them from playing again
+            if (hasWonToday === "true" && lastScanDate === today) {
+                document.getElementById("random-number").innerText = "每天只可以参加一次哦 ❌";
                 document.getElementById("message").innerText = "";
+                return;
+            }
 
-            } else {
+            // If user is within cooldown (losers), show last message
+            if (lastScanTime && now.getTime() - lastScanTime < tenMinutes) {
                 let storedNumber = localStorage.getItem("randomNumber") || "-";
                 if (storedNumber % 2 === 1) {
                     document.getElementById("random-number").innerText = "抓到啦！恭喜你！来找我领飘带吧 🎉";
+                    document.getElementById("message").innerText = "每天只可以参加一次哦 ❌";
                 } else {
                     document.getElementById("random-number").innerText = "虽然你抓到我了，但可惜运气不佳没中奖 😢";
+                    document.getElementById("message").innerText = "你只能每10分钟抓我一次！请稍后再试～";
                 }
+                return;
+            }
+
+            // Generate new random number
+            let randomNum = Math.floor(Math.random() * 100) + 1;
+            localStorage.setItem("randomNumber", randomNum);
+            localStorage.setItem("lastScanTime", now.getTime());
+            localStorage.setItem("lastScanDate", today);
+
+            if (randomNum % 2 === 1) {
+                document.getElementById("random-number").innerText = "抓到啦！恭喜你！来找我领飘带吧 🎉";
+                document.getElementById("message").innerText = "每天只可以参加一次哦 ❌";
+                localStorage.setItem("hasWonToday", "true"); // Store win status
+            } else {
+                document.getElementById("random-number").innerText = "虽然你抓到我了，但可惜运气不佳没中奖 😢";
                 document.getElementById("message").innerText = "你只能每10分钟抓我一次！请稍后再试～";
             }
         }
