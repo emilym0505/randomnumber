@@ -1,32 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Random Number Generator</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #FFC0CB;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            font-size: 42px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        #random-number {
+            font-size: 50px;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 30px 50px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            display: inline-block;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        #message {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+
     <script>
         function generateRandomNumber() {
-            const now = Date.now();
-            const lastGenerated = localStorage.getItem("lastGeneratedTime");
-            const thirtyMinutes = 30 * 60 * 1000; // 30 minutes in milliseconds
+            let lastScanTime = localStorage.getItem("lastScanTime");
+            let now = new Date().getTime();
+            let tenMinutes = 10 * 60 * 1000;
 
-            if (lastGenerated && now - lastGenerated < thirtyMinutes) {
-                const savedNumber = localStorage.getItem("randomNumber");
-                document.getElementById("result").innerText = "Your last number: " + savedNumber + " (Wait 30 minutes for a new one)";
-                return;
+            if (!lastScanTime || now - lastScanTime >= tenMinutes) {
+                let randomNum = Math.floor(Math.random() * 100) + 1;
+                localStorage.setItem("randomNumber", randomNum);
+                localStorage.setItem("lastScanTime", now);
+
+                if (randomNum % 2 === 1) {
+                    document.getElementById("random-number").innerText = "抓到啦！恭喜你！来找我领飘带吧 🎉";
+                } else {
+                    document.getElementById("random-number").innerText = "太可惜啦，过十分钟再来试试吧 😢";
+                }
+                document.getElementById("message").innerText = "";
+
+            } else {
+                let storedNumber = localStorage.getItem("randomNumber") || "-";
+                if (storedNumber % 2 === 1) {
+                    document.getElementById("random-number").innerText = "抓到啦！恭喜你！来找我领飘带吧 🎉";
+                } else {
+                    document.getElementById("random-number").innerText = "太可惜啦，过十分钟再来试试吧 😢";
+                }
+                document.getElementById("message").innerText = "你只能每10分钟抓我一次！请稍后再试～";
             }
-
-            const randomNumber = Math.floor(Math.random() * 100) + 1;
-            localStorage.setItem("randomNumber", randomNumber);
-            localStorage.setItem("lastGeneratedTime", now);
-            document.getElementById("result").innerText = "Your Number: " + randomNumber;
         }
 
         window.onload = generateRandomNumber;
     </script>
 </head>
+
 <body>
-    <h1>Random Number Generator</h1>
-    <p id="result">Generating...</p>
+    <h1>呀 抓到我啦</h1>
+    <p id="random-number"></p>
+    <p id="message"></p>
 </body>
+
 </html>
+
